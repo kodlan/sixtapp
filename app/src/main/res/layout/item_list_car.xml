@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="wrap_content"
+                                                   android:paddingBottom="8dp">
+
+    <androidx.cardview.widget.CardView
+            android:id="@+id/item_list_card_view"
+            android:elevation="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/item_list_fuel_level"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:background="@drawable/shape_circle"
+                    app:layout_constraintBottom_toBottomOf="@+id/item_list_car_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/item_list_car_image"
+                    tools:text="4.5"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/item_list_car_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@+id/item_list_model_name"
+                    app:layout_constraintEnd_toStartOf="@id/item_list_car_image"
+                    app:layout_constraintStart_toEndOf="@+id/item_list_fuel_level"
+                    app:layout_constraintTop_toTopOf="@id/item_list_fuel_level"
+                    tools:text="Beer title"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/item_list_car_image"
+                    android:layout_width="200dp"
+                    android:layout_height="100dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/item_list_model_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@id/item_list_fuel_level"
+                    app:layout_constraintEnd_toStartOf="@id/item_list_car_image"
+                    app:layout_constraintStart_toEndOf="@+id/item_list_fuel_level"
+                    app:layout_constraintTop_toBottomOf="@id/item_list_car_name"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

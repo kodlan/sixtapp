@@ -23,7 +23,7 @@ import com.sbardyuk.sixtapp.vm.CarMapViewModel
 import com.sbardyuk.sixtapp.vm.model.CarMapModel
 import com.squareup.picasso.Picasso
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var viewModel: CarMapViewModel
     private lateinit var map: GoogleMap
@@ -46,7 +46,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        map.setOnMapClickListener(this)
         val markerInfoWindowAdapter = MarkerInfoWindowAdapter(applicationContext)
         googleMap.setInfoWindowAdapter(markerInfoWindowAdapter)
     }
@@ -80,17 +79,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapCli
 
     private fun onError(error: String) {
         Toast.makeText(this, error, Toast.LENGTH_LONG).show()
-    }
-
-    override fun onMapClick(p0: LatLng?) {
-        val markerOptions = MarkerOptions()
-        markerOptions.position(p0!!)
-
-        map.clear()
-        map.animateCamera(CameraUpdateFactory.newLatLng(p0))
-
-        val marker = map.addMarker(markerOptions)
-        marker.showInfoWindow()
     }
 
     private fun dpToPx(dp: Float): Float {

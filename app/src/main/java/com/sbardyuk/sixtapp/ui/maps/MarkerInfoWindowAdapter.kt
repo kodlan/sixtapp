@@ -25,7 +25,7 @@ class MarkerInfoWindowAdapter(context: Context) : GoogleMap.InfoWindowAdapter {
         val modelView = v.findViewById(R.id.car_model_view) as TextView
 
         nameView.text = carUi.name
-        modelView.text = carUi.carImageUrl
+        modelView.text = carUi.fullModelName
 
         return v
     }

@@ -27,11 +27,7 @@ class CarListViewModel(private val getCarsUseCase: GetCarsUseCase) : ViewModel()
     val error: LiveData<String>
         get() = errorLiveData
 
-    init {
-        startLoad()
-    }
-
-    private fun startLoad() {
+    public fun startLoad() {
         viewModelScope.launch {
             isLoadingLiveData(true)
             updateLiveData(

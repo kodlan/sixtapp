@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = KodeinContainers.diSixtProject.newInstance { CarListViewModel(instance()) }
+        viewModel.startLoad()
 
         viewModel.cars.observe(this, Observer(::onCarsReceived))
         viewModel.error.observe(this, Observer(::onError))

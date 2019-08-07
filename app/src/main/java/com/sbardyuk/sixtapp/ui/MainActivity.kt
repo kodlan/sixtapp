@@ -1,5 +1,6 @@
 package com.sbardyuk.sixtapp.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -14,6 +15,8 @@ import com.sbardyuk.sixtapp.ui.list.CarListAdapter
 import com.sbardyuk.sixtapp.vm.CarListViewModel
 import com.sbardyuk.sixtapp.vm.model.CarUIModel
 import kotlinx.android.synthetic.main.activity_main.*
+import com.sbardyuk.sixtapp.ui.list.OnCarClickListener
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,8 +36,18 @@ class MainActivity : AppCompatActivity() {
     private fun onCarsReceived(cars: List<CarUIModel>?) {
         cars?.let {
             recycler_cars.layoutManager = LinearLayoutManager(this)
-            recycler_cars.adapter = CarListAdapter(it, this)
+            recycler_cars.adapter = CarListAdapter(it, this, object : OnCarClickListener {
+                override fun onItemClick(item: CarUIModel) {
+                    onClick(item)
+                }
+            })
         }
+    }
+
+    private fun onClick(car: CarUIModel) {
+        // TODO: make some kind of navigation service and move to viewmodel ?
+        val intent = Intent(this, MapsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun onError(error: String) {

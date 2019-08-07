@@ -1,44 +1,99 @@
 package com.sbardyuk.sixtapp.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import com.github.salomonbrys.kodein.instance
+import com.github.salomonbrys.kodein.newInstance
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.sbardyuk.sixtapp.R
+import com.sbardyuk.sixtapp.di.KodeinContainers
+import com.sbardyuk.sixtapp.ui.maps.MarkerInfoWindowAdapter
+import com.sbardyuk.sixtapp.ui.maps.MarkerTag
+import com.sbardyuk.sixtapp.ui.maps.PicassoMarker
+import com.sbardyuk.sixtapp.vm.CarMapViewModel
+import com.sbardyuk.sixtapp.vm.model.CarMapModel
+import com.squareup.picasso.Picasso
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
-    private lateinit var mMap: GoogleMap
+    private lateinit var viewModel: CarMapViewModel
+    private lateinit var map: GoogleMap
+
+    //private val mapReadyLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        viewModel = KodeinContainers.diSixtProject.newInstance { CarMapViewModel(instance()) }
+
+        viewModel.carsMap.observe(this, Observer(::onCarsReceived))
+        viewModel.error.observe(this, Observer(::onError))
+
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        map = googleMap
+        map.setOnMapClickListener(this)
+        val markerInfoWindowAdapter = MarkerInfoWindowAdapter(applicationContext)
+        googleMap.setInfoWindowAdapter(markerInfoWindowAdapter)
+    }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    private fun onCarsReceived(cars: List<CarMapModel>?) {
+        val builder = LatLngBounds.Builder()
+
+        cars?.forEach {
+            val position = LatLng(it.latitude, it.longitude)
+            val marker = map.addMarker(MarkerOptions().position(position))
+            val picassoMarker = PicassoMarker(marker)
+
+            // picasso holds only weak ref
+            marker.tag = MarkerTag(picassoMarker, it)
+
+            // TODO: fix placeholder scaling somehow
+            Picasso.with(this)
+                .load(it.carImageUrl)
+                .resize(dpToPx(70f).toInt(), 0)
+                .placeholder(R.drawable.placeholder_car)
+                .error(R.drawable.placeholder_car)
+                .into(picassoMarker)
+
+            builder.include(position)
+        }
+
+        val bounds = builder.build()
+        val cu = CameraUpdateFactory.newLatLngBounds(bounds, 0)
+        map.animateCamera(cu)
+    }
+
+    private fun onError(error: String) {
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onMapClick(p0: LatLng?) {
+        val markerOptions = MarkerOptions()
+        markerOptions.position(p0!!)
+
+        map.clear()
+        map.animateCamera(CameraUpdateFactory.newLatLng(p0))
+
+        val marker = map.addMarker(markerOptions)
+        marker.showInfoWindow()
+    }
+
+    private fun dpToPx(dp: Float): Float {
+        return dp * this.resources.getDisplayMetrics().density
     }
 }

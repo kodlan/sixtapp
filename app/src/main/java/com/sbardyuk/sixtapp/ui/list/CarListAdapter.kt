@@ -13,7 +13,7 @@ import com.sbardyuk.sixtapp.vm.model.CarUIModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_list_car.view.*
 
-class CarListAdapter(private var cars: List<CarUIModel>, private val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+class CarListAdapter(private var cars: List<CarUIModel>, private val context: Context, private val carClickListener: OnCarClickListener) : RecyclerView.Adapter<ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_list_car, parent, false))
@@ -36,6 +36,7 @@ class CarListAdapter(private var cars: List<CarUIModel>, private val context: Co
                 .error(R.drawable.placeholder_car)
                 .into(carImageView)
 
+            cardView.setOnClickListener { carClickListener.onItemClick(car) }
         }
     }
 }
@@ -45,4 +46,5 @@ class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     val carNameView: AppCompatTextView = view.item_list_car_name
     val modelNameView: AppCompatTextView = view.item_list_model_name
     val carImageView: AppCompatImageView = view.item_list_car_image
+    val cardView: View = view.item_list_card_view
 }

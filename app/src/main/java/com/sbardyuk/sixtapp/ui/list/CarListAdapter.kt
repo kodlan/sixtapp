@@ -30,9 +30,10 @@ class CarListAdapter(private var cars: List<CarUIModel>, private val context: Co
             fuelLevelView.text = "%1.2f".format(car.fuelLevel) + car.fuelType
             modelNameView.text = car.fullModelName
 
-            // TODO: use placeholder
             Picasso.with(context)
                 .load(cars[position].carImageUrl)
+                .placeholder(R.drawable.progress_bar_drawable)
+                .error(R.drawable.placeholder_car)
                 .into(carImageView)
 
         }

@@ -13,6 +13,7 @@ object CarModelToCarUIMapper : BaseMapper<List<CarModel>, List<CarUIModel>> {
             beers.forEach {
                 result.add(
                     CarUIModel(
+                        id = it.id,
                         name = it.name,
                         fullModelName = "${it.make} ${it.modelName}",
                         carImageUrl = it.carImageUrl,

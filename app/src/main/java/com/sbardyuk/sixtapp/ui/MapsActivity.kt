@@ -22,11 +22,19 @@ import com.sbardyuk.sixtapp.ui.maps.PicassoMarker
 import com.sbardyuk.sixtapp.vm.CarMapViewModel
 import com.sbardyuk.sixtapp.vm.model.CarMapModel
 import com.squareup.picasso.Picasso
+import com.google.android.gms.maps.model.CameraPosition
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    companion object {
+        const val SELECTED_CAR_PARAM = "selected_car"
+    }
+
     private lateinit var viewModel: CarMapViewModel
     private lateinit var map: GoogleMap
+
+    private var selectedCarId: String? = null
+    private lateinit var carList: List<CarMapModel>
 
     private val mapReadyLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -34,12 +42,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+        initSelectedCar()
+
+        initMap()
+
+        initViewModel()
+    }
+
+    private fun initSelectedCar() {
+        selectedCarId = intent.getStringExtra(SELECTED_CAR_PARAM)
+    }
+
+    private fun initMap() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+    }
 
+    private fun initViewModel() {
         viewModel = KodeinContainers.diSixtProject.newInstance { CarMapViewModel(instance()) }
 
         mapReadyLiveData.observe(this, Observer {
+            // map is ready - create markers/show error
             viewModel.carsMap.observe(this, Observer(::onCarsReceived))
             viewModel.error.observe(this, Observer(::onError))
         })
@@ -53,10 +76,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapReadyLiveData.postValue(true)
     }
 
-    private fun onCarsReceived(cars: List<CarMapModel>?) {
+    private fun onCarsReceived(cars: List<CarMapModel>) {
         val builder = LatLngBounds.Builder()
+        carList = cars
 
-        cars?.forEach {
+        cars.forEach {
             val position = LatLng(it.latitude, it.longitude)
             val marker = map.addMarker(MarkerOptions().position(position))
             val picassoMarker = PicassoMarker(marker)
@@ -75,9 +99,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             builder.include(position)
         }
 
-        val bounds = builder.build()
-        val cu = CameraUpdateFactory.newLatLngBounds(bounds, 0)
-        map.animateCamera(cu)
+        if (selectedCarId != null) {
+            // zoom to car selected in the list
+            zoomToCar()
+        } else {
+            // zoom to show all cars on the map
+            zoomToBounds(builder)
+        }
     }
 
     private fun onError(error: String) {
@@ -86,5 +114,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun dpToPx(dp: Float): Float {
         return dp * this.resources.getDisplayMetrics().density
+    }
+
+    private fun zoomToBounds(builder: LatLngBounds.Builder) {
+        val bounds = builder.build()
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0))
+    }
+
+    private fun zoomToCar() {
+        val carMapModel = findCarMapModel()
+
+        carMapModel?.let {
+            val cameraPosition = CameraPosition.Builder()
+                .target(LatLng(it.latitude, it.longitude))
+                .zoom(15f)
+                .build()
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
+        }
+    }
+
+    private fun findCarMapModel(): CarMapModel? {
+        return carList.asSequence().find { it.id == selectedCarId }
     }
 }

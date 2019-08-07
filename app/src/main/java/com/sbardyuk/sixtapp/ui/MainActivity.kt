@@ -2,6 +2,7 @@ package com.sbardyuk.sixtapp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,11 +12,13 @@ import com.github.salomonbrys.kodein.instance
 import com.github.salomonbrys.kodein.newInstance
 import com.sbardyuk.sixtapp.R
 import com.sbardyuk.sixtapp.di.KodeinContainers
+import com.sbardyuk.sixtapp.ui.MapsActivity.Companion.SELECTED_CAR_PARAM
 import com.sbardyuk.sixtapp.ui.list.CarListAdapter
 import com.sbardyuk.sixtapp.vm.CarListViewModel
 import com.sbardyuk.sixtapp.vm.model.CarUIModel
 import kotlinx.android.synthetic.main.activity_main.*
 import com.sbardyuk.sixtapp.ui.list.OnCarClickListener
+import android.view.MenuItem
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +36,18 @@ class MainActivity : AppCompatActivity() {
         viewModel.isLoading.observe(this, Observer(::onLoading))
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item?.itemId == R.id.map_menu) {
+            startActivity(Intent(this, MapsActivity::class.java))
+        }
+        return true
+    }
+
     private fun onCarsReceived(cars: List<CarUIModel>?) {
         cars?.let {
             recycler_cars.layoutManager = LinearLayoutManager(this)
@@ -47,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     private fun onClick(car: CarUIModel) {
         // TODO: make some kind of navigation service and move to viewmodel ?
         val intent = Intent(this, MapsActivity::class.java)
+        intent.putExtra(SELECTED_CAR_PARAM, car.id)
         startActivity(intent)
     }
 

@@ -11,9 +11,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.sbardyuk.sixtapp.R
 import com.sbardyuk.sixtapp.di.KodeinContainers
 import com.sbardyuk.sixtapp.ui.maps.MarkerInfoWindowAdapter
@@ -22,7 +20,6 @@ import com.sbardyuk.sixtapp.ui.maps.PicassoMarker
 import com.sbardyuk.sixtapp.vm.CarMapViewModel
 import com.sbardyuk.sixtapp.vm.model.CarMapModel
 import com.squareup.picasso.Picasso
-import com.google.android.gms.maps.model.CameraPosition
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -83,29 +80,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         cars.forEach {
             val position = LatLng(it.latitude, it.longitude)
             val marker = map.addMarker(MarkerOptions().position(position))
-            val picassoMarker = PicassoMarker(marker)
 
-            // picasso holds only weak ref
-            marker.tag = MarkerTag(picassoMarker, it)
-
-            // TODO: fix placeholder scaling somehow
-            Picasso.with(this)
-                .load(it.carImageUrl)
-                .resize(dpToPx(70f).toInt(), 0)
-                .placeholder(R.drawable.placeholder_car)
-                .error(R.drawable.placeholder_car)
-                .into(picassoMarker)
+            loadMarkerImage(it, marker)
 
             builder.include(position)
         }
 
-        if (selectedCarId != null) {
-            // zoom to car selected in the list
-            zoomToCar()
-        } else {
-            // zoom to show all cars on the map
-            zoomToBounds(builder)
-        }
+        zoom(builder)
+    }
+
+    private fun loadMarkerImage(carMapModel: CarMapModel, marker: Marker) {
+        val picassoMarker = PicassoMarker(marker)
+
+        // picasso holds only weak ref
+        marker.tag = MarkerTag(picassoMarker, carMapModel)
+
+        // TODO: fix placeholder scaling somehow
+        Picasso.with(this)
+            .load(carMapModel.carImageUrl)
+            .resize(dpToPx(70f).toInt(), 0)
+            .placeholder(R.drawable.placeholder_car)
+            .error(R.drawable.placeholder_car)
+            .into(picassoMarker)
     }
 
     private fun onError(error: String) {
@@ -114,6 +110,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun dpToPx(dp: Float): Float {
         return dp * this.resources.getDisplayMetrics().density
+    }
+
+    private fun zoom(builder: LatLngBounds.Builder) {
+        if (selectedCarId != null) {
+            // zoom to car selected in the list
+            zoomToCar()
+        } else {
+            // zoom to show all cars on the map
+            zoomToBounds(builder)
+        }
     }
 
     private fun zoomToBounds(builder: LatLngBounds.Builder) {

@@ -1,5 +1,6 @@
 package com.sbardyuk.sixtapp.vm
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +18,10 @@ class CarMapViewModel(private val getCarsUseCase: GetCarsUseCase) : ViewModel() 
     private val carsMapLiveData: MutableLiveData<List<CarMapModel>> = MutableLiveData()
     private val errorLiveData: MutableLiveData<String> = MutableLiveData()
 
-    val carsMap: MutableLiveData<List<CarMapModel>>
+    val carsMap: LiveData<List<CarMapModel>>
         get() = carsMapLiveData
 
-    val error: MutableLiveData<String>
+    val error: LiveData<String>
         get() = errorLiveData
 
     init {

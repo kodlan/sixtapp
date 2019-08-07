@@ -79,5 +79,4 @@ class MainActivity : AppCompatActivity() {
             visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
-
 }

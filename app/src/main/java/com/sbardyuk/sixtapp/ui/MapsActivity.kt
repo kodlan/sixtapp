@@ -28,7 +28,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var viewModel: CarMapViewModel
     private lateinit var map: GoogleMap
 
-    //private val mapReadyLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private val mapReadyLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,15 +39,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         viewModel = KodeinContainers.diSixtProject.newInstance { CarMapViewModel(instance()) }
 
-        viewModel.carsMap.observe(this, Observer(::onCarsReceived))
-        viewModel.error.observe(this, Observer(::onError))
-
+        mapReadyLiveData.observe(this, Observer {
+            viewModel.carsMap.observe(this, Observer(::onCarsReceived))
+            viewModel.error.observe(this, Observer(::onError))
+        })
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         val markerInfoWindowAdapter = MarkerInfoWindowAdapter(applicationContext)
         googleMap.setInfoWindowAdapter(markerInfoWindowAdapter)
+
+        mapReadyLiveData.postValue(true)
     }
 
     private fun onCarsReceived(cars: List<CarMapModel>?) {
